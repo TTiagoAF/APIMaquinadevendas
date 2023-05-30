@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "p9l8UCyaPuLrY6n+07z3udyk8xhGMyAolBNKFcAyUhZfuxHXS9bMwDEUjklS24a8/Af1MzqjQ5We3AIKg5k0zg==",
+  "dgSpecHash": "KCh08iBF9gGcE1mbUxXXOfFAMOqQd45hMz1P0/OKpo62/b0PlnvYMx6obMdDh/2JDnYX2mWirHVc5xhEjpi+ig==",
   "success": true,
-  "projectFilePath": "C:\\Users\\tiago\\source\\repos\\BrinquedosAPI\\BrinquedosAPI\\BrinquedosAPI.csproj",
+  "projectFilePath": "C:\\Users\\tiago\\OneDrive\\Documentos\\GitHub\\APIMaquinadevendas\\BrinquedosAPI\\BrinquedosAPI.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\tiago\\.nuget\\packages\\azure.core\\1.24.0\\azure.core.1.24.0.nupkg.sha512",
     "C:\\Users\\tiago\\.nuget\\packages\\azure.identity\\1.6.0\\azure.identity.1.6.0.nupkg.sha512",

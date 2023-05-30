@@ -11098,11 +11098,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\tiago\\source\\repos\\BrinquedosAPI\\BrinquedosAPI\\BrinquedosAPI.csproj",
+      "projectUniqueName": "C:\\Users\\tiago\\OneDrive\\Documentos\\GitHub\\APIMaquinadevendas\\BrinquedosAPI\\BrinquedosAPI.csproj",
       "projectName": "BrinquedosAPI",
-      "projectPath": "C:\\Users\\tiago\\source\\repos\\BrinquedosAPI\\BrinquedosAPI\\BrinquedosAPI.csproj",
+      "projectPath": "C:\\Users\\tiago\\OneDrive\\Documentos\\GitHub\\APIMaquinadevendas\\BrinquedosAPI\\BrinquedosAPI.csproj",
       "packagesPath": "C:\\Users\\tiago\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\tiago\\source\\repos\\BrinquedosAPI\\BrinquedosAPI\\obj\\",
+      "outputPath": "C:\\Users\\tiago\\OneDrive\\Documentos\\GitHub\\APIMaquinadevendas\\BrinquedosAPI\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\tiago\\AppData\\Roaming\\NuGet\\NuGet.Config",
