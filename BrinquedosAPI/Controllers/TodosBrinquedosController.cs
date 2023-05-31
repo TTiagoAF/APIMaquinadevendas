@@ -26,9 +26,15 @@ namespace BrinquedosAPI.Controllers
         [HttpGet("ListaDeBrinquedos")]
         public async Task<ActionResult<IEnumerable<TodosBrinquedosDTO>>> GetTodosBrinquedos()
         {
-            return await _contexto.TodoBrinquedos
-                .Select(x => BrinquedosToDTO(x))
-                .ToListAsync();
+            var filePath = "C:\\Users\\tiago\\OneDrive\\Documentos\\GitHub\\APIMaquinadevendas\\BrinquedosAPI\\brinquedos.json";
+
+            var conteudoarquivo = await System.IO.File.ReadAllTextAsync(filePath);
+
+            var brinquedosconvertidos = JsonConvert.DeserializeObject<TodosBrinquedosJSON>(conteudoarquivo);
+
+            var brinquedoscarregados = brinquedosconvertidos?.Brinquedos ?? new List<TodosBrinquedosDTO>();
+
+            return brinquedoscarregados;
         }
 
         // GET {id}: Vai buscar os itens da API por ID
@@ -50,9 +56,26 @@ namespace BrinquedosAPI.Controllers
         {
             try
             {
+                var filePath = "C:\\Users\\tiago\\OneDrive\\Documentos\\GitHub\\APIMaquinadevendas\\BrinquedosAPI\\brinquedos.json";
+
+                // Lê o conteúdo atual do arquivo JSON
+                var json = await System.IO.File.ReadAllTextAsync(filePath);
+
+                // Desserializa o conteúdo JSON para um objeto
+                var todosBrinquedosJSON = JsonConvert.DeserializeObject<TodosBrinquedosJSON>(json);
+
+                // Remove os brinquedos correspondentes aos IDs fornecidos
+                todosBrinquedosJSON.Brinquedos.RemoveAll(b => ids.Contains(b.Id));
+
+                // Serializa o objeto atualizado de volta para JSON
+                var updatedJson = JsonConvert.SerializeObject(todosBrinquedosJSON);
+
+                // Salva o conteúdo atualizado de volta no arquivo
+                await System.IO.File.WriteAllTextAsync(filePath, updatedJson);
+
+                // Remove os brinquedos do banco de dados
                 foreach (var id in ids)
                 {
-                    // Procura o brinquedo no banco de dados pelo ID
                     var todosBrinquedos = await _contexto.TodoBrinquedos.FindAsync(id);
 
                     if (todosBrinquedos == null)
@@ -61,13 +84,13 @@ namespace BrinquedosAPI.Controllers
                     }
                     else
                     {
-                        // Remove o brinquedo do banco de dados
                         _contexto.TodoBrinquedos.Remove(todosBrinquedos);
                     }
                 }
 
                 // Salva as alterações no banco de dados
                 await _contexto.SaveChangesAsync();
+
                 return NoContent();
             }
             catch (Exception ex)
@@ -92,7 +115,7 @@ namespace BrinquedosAPI.Controllers
                         brinquedoExistente.Brinquedo = brinquedoDTO.Brinquedo;
                         brinquedoExistente.Preco = brinquedoDTO.Preco;
                         brinquedoExistente.Quantidade = brinquedoDTO.Quantidade;
-
+                        brinquedoExistente.VendasTotais = brinquedoDTO.VendasTotais;
                     }
                     else
                     {
@@ -101,7 +124,8 @@ namespace BrinquedosAPI.Controllers
                         {
                             Brinquedo = brinquedoDTO.Brinquedo,
                             Preco = brinquedoDTO.Preco,
-                            Quantidade = brinquedoDTO.Quantidade
+                            Quantidade = brinquedoDTO.Quantidade,
+                            VendasTotais = brinquedoDTO.VendasTotais
                         };
 
                         _contexto.TodoBrinquedos.Add(novoBrinquedo);
@@ -121,7 +145,7 @@ namespace BrinquedosAPI.Controllers
 
                 var json = JsonConvert.SerializeObject(TodosBrinquedosJSON);
 
-                var filePath = "C:\\Users\\tiago\\OneDrive\\Documentos\\Esco1\\FCT2ºAno\\brinquedos.json";
+                var filePath = "C:\\Users\\tiago\\OneDrive\\Documentos\\GitHub\\APIMaquinadevendas\\BrinquedosAPI\\brinquedos.json";
 
                 await System.IO.File.WriteAllTextAsync(filePath, json);
 
@@ -144,7 +168,8 @@ namespace BrinquedosAPI.Controllers
                Id = TodoBrinquedo.Id,
                Brinquedo = TodoBrinquedo.Brinquedo,
                Preco = TodoBrinquedo.Preco,
-               Quantidade = TodoBrinquedo.Quantidade
+               Quantidade = TodoBrinquedo.Quantidade,
+               VendasTotais = TodoBrinquedo.VendasTotais
            };
     }
 }
