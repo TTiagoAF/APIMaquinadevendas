@@ -2,10 +2,11 @@
 {
     public class TodosBrinquedosDTO
     {
-        public long Id { get; set; }
-        public string? Brinquedo { get; set; }
-        public double Preco { get; set; }
-        public int Quantidade { get; set; }
-        public int VendasTotais { get; set; }
+        public long id { get; set; }
+        public string brinquedo { get; set; }
+        public double preco { get; set; }
+        public int quantidade { get; set; }
+        public int vendastotais { get; set; }
+
     }
 }
