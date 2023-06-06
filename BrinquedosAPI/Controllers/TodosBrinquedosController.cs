@@ -56,23 +56,6 @@ public class TodosBrinquedosController : ControllerBase
     {
         try
         {
-            var filePath = "C:\\Users\\tiago\\OneDrive\\Documentos\\GitHub\\APIMaquinadevendas\\BrinquedosAPI\\brinquedos.json";
-
-            // Lê o conteúdo atual do arquivo JSON
-            var json = await System.IO.File.ReadAllTextAsync(filePath);
-
-            // Desserializa o conteúdo JSON para um objeto
-            var todosBrinquedosJSON = JsonConvert.DeserializeObject<TodosBrinquedosJSON>(json);
-
-            // Remove os brinquedos correspondentes aos IDs fornecidos
-            todosBrinquedosJSON.Brinquedos.RemoveAll(b => ids.Contains(b.id));
-
-            // Serializa o objeto atualizado de volta para JSON
-            var updatedJson = JsonConvert.SerializeObject(todosBrinquedosJSON);
-
-            // Salva o conteúdo atualizado de volta no arquivo
-            await System.IO.File.WriteAllTextAsync(filePath, updatedJson);
-
             // Remove os brinquedos do banco de dados
             foreach (var id in ids)
             {
@@ -142,12 +125,6 @@ public class TodosBrinquedosController : ControllerBase
             {
                 Brinquedos = todosBrinquedos.Select(BrinquedosToDTO).ToList()
             };
-
-            var json = JsonConvert.SerializeObject(TodosBrinquedosJSON);
-
-            var filePath = "C:\\Users\\tiago\\OneDrive\\Documentos\\GitHub\\APIMaquinadevendas\\BrinquedosAPI\\brinquedos.json";
-
-            await System.IO.File.WriteAllTextAsync(filePath, json);
 
             return Ok();
         }
