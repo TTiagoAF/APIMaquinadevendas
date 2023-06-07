@@ -26,15 +26,9 @@ public class TodosBrinquedosController : ControllerBase
     [HttpGet("ListaDeBrinquedos")]
     public async Task<ActionResult<IEnumerable<TodosBrinquedosDTO>>> GetTodosBrinquedos()
     {
-        var filePath = "C:\\Users\\tiago\\OneDrive\\Documentos\\GitHub\\APIMaquinadevendas\\BrinquedosAPI\\brinquedos.json";
-
-        var conteudoarquivo = await System.IO.File.ReadAllTextAsync(filePath);
-
-        var brinquedosconvertidos = JsonConvert.DeserializeObject<TodosBrinquedosJSON>(conteudoarquivo);
-
-        var brinquedoscarregados = brinquedosconvertidos?.Brinquedos ?? new List<TodosBrinquedosDTO>();
-
-        return brinquedoscarregados;
+        return await _contexto.TodoBrinquedos
+               .Select(x => BrinquedosToDTO(x))
+               .ToListAsync();
     }
 
     // GET {id}: Vai buscar os itens da API por ID
