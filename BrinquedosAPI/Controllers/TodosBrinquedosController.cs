@@ -93,21 +93,6 @@ public class TodosBrinquedosController : ControllerBase
                     brinquedoExistente.preco = brinquedoDTO.preco;
                     brinquedoExistente.quantidade = brinquedoDTO.quantidade;
                     brinquedoExistente.vendastotais = brinquedoDTO.vendastotais;
-
-                    // Atualiza o estoque e as vendas
-                    var novaQuantidade = brinquedoExistente.quantidade - 1;
-                    var novaVendasTotais = brinquedoExistente.vendastotais + 1;
-
-                    if (novaQuantidade >= 0)
-                    {
-                        brinquedoExistente.quantidade = novaQuantidade;
-                        brinquedoExistente.vendastotais = novaVendasTotais;
-                    }
-                    else
-                    {
-                        // Se a quantidade em estoque for insuficiente, retorne um erro
-                        return BadRequest($"Quantidade insuficiente em estoque para o brinquedo com o ID: {brinquedoDTO.id}.");
-                    }
                 }
                 else
                 {
@@ -139,7 +124,7 @@ public class TodosBrinquedosController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, "Ocorreu um erro ao adicionar ou atualizar o brinquedo.");
+            return NotFound();
         }
     }
 
