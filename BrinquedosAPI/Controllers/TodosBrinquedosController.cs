@@ -128,6 +128,32 @@ public class TodosBrinquedosController : ControllerBase
         }
     }
 
+    [HttpPost("AtualizarQuantidadeEVendas/{id}")]
+public async Task<ActionResult> AtualizarQuantidadeEVendas(long id)
+{
+    try
+    {
+        var brinquedo = await _contexto.TodoBrinquedos.FindAsync(id);
+
+        if (brinquedo == null)
+        {
+            return NotFound($"Não foi encontrado nenhum Brinquedo com o Id: {id}. Insira outro Id.");
+        }
+
+        brinquedo.quantidade -= 1;
+        brinquedo.vendastotais += 1;
+
+        await _contexto.SaveChangesAsync();
+
+        return NoContent();
+    }
+    catch (Exception ex)
+    {
+        return StatusCode(StatusCodes.Status500InternalServerError, "Erro ao atualizar a quantidade e vendas totais do brinquedo");
+    }
+}
+
+
     private bool TodosBrinquedosExists(long id)
     {
        return _contexto.TodoBrinquedos.Any(e => e.id == id);
