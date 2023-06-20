@@ -18,28 +18,28 @@
       "id": 3,
       "brinquedo": "Puzzle",
       "preco": 3.2,
-      "quantidade": 7,
+      "quantidade": 16,
       "vendastotais": 0
     },
     {
       "id": 4,
       "brinquedo": "Pião",
       "preco": 0.7,
-      "quantidade": 7,
+      "quantidade": 23,
       "vendastotais": 0
     },
     {
       "id": 5,
       "brinquedo": "Lego",
       "preco": 5.2,
-      "quantidade": 5,
+      "quantidade": 15,
       "vendastotais": 0
     },
     {
       "id": 6,
       "brinquedo": "Comboio",
       "preco": 13.8,
-      "quantidade": 4,
+      "quantidade": 20,
       "vendastotais": 0
     },
     {
@@ -53,7 +53,7 @@
       "id": 8,
       "brinquedo": "Nerfs",
       "preco": 10.2,
-      "quantidade": 4,
+      "quantidade": 17,
       "vendastotais": 0
     },
     {
@@ -81,7 +81,7 @@
       "id": 12,
       "brinquedo": "Pop",
       "preco": 15,
-      "quantidade": 7,
+      "quantidade": 10,
       "vendastotais": 0
     }
   ]

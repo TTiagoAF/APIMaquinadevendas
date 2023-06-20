@@ -8,6 +8,9 @@ using Microsoft.EntityFrameworkCore;
 using BrinquedosAPI.Models;
 using Newtonsoft.Json;
 using System.Text;
+using PetaPoco;
+using System.Data;
+using MySql.Data.MySqlClient;
 
 namespace BrinquedosAPI.Controllers;
 
@@ -22,13 +25,29 @@ public class TodosBrinquedosController : ControllerBase
         _contexto = contexto;
     }
 
+    string conexaodb = "Server=localhost;Port=3306;Database=maquinadevendas;Uid=root;";
+
     // GET: api/TodosBrinquedos
     [HttpGet("ListaDeBrinquedos")]
     public async Task<ActionResult<IEnumerable<TodosBrinquedosDTO>>> GetTodosBrinquedos()
     {
-        return await _contexto.TodoBrinquedos
-               .Select(x => BrinquedosToDTO(x))
-               .ToListAsync();
+        
+            using (var db = new Database(conexaodb, "MySql.Data.MySqlClient")) // Substitua "NomeDaSuaConnectionString" pela sua string de conexão do MySQL
+            {
+                var todosProdutos = await db.FetchAsync<TodosBrinquedos>("SELECT * FROM brinquedos");
+
+                var responseItems = todosProdutos.Select(p => new TodosBrinquedosDTO
+                {
+                    Id = p.Id,
+                    brinquedo = p.brinquedo,
+                    quantidade = p.quantidade,
+                    preco = p.preco,
+                    vendastotais = p.vendastotais
+                }).ToList();
+
+                return Ok(responseItems);
+            }
+        
     }
 
     // GET {id}: Vai buscar os itens da API por ID
@@ -50,119 +69,107 @@ public class TodosBrinquedosController : ControllerBase
     {
         try
         {
-            // Remove os brinquedos do banco de dados
-            foreach (var id in ids)
+            using (var db = new Database(conexaodb, "MySql.Data.MySqlClient"))
             {
-                var todosBrinquedos = await _contexto.TodoBrinquedos.FindAsync(id);
+                foreach (var id in ids)
+                {
+                    var todosBrinquedos = await db.SingleOrDefaultAsync<TodosBrinquedos>("SELECT * FROM brinquedos WHERE id = @0", id);
 
-                if (todosBrinquedos == null)
-                {
-                    return NotFound($"Não foi encontrado nenhum Brinquedo com o Id: {id}. Insira outro Id.");
-                }
-                else
-                {
-                    _contexto.TodoBrinquedos.Remove(todosBrinquedos);
+                    if (todosBrinquedos == null)
+                    {
+                        return NotFound($"Não foi encontrado nenhum Brinquedo com o Id: {id}. Insira outro Id.");
+                    }
+                    else
+                    {
+                        await db.DeleteAsync("brinquedos", "id", todosBrinquedos);
+                    }
                 }
             }
-
-            // Salva as alterações no banco de dados
-            await _contexto.SaveChangesAsync();
 
             return NoContent();
         }
         catch (Exception ex)
         {
-            return NotFound();
+            return StatusCode(StatusCodes.Status500InternalServerError, "Erro ao excluir brinquedo(s)");
         }
     }
     // Método post que faz o inserir
     [HttpPost("AddOrUpdateBrinquedo")]
     public async Task<ActionResult> AddOrUpdateBrinquedo([FromBody] List<TodosBrinquedosDTO> TodosBrinquedosDTO)
     {
-        try
+        using (var db = new Database(conexaodb, "MySql.Data.MySqlClient"))
         {
-            foreach (var brinquedoDTO in TodosBrinquedosDTO)
+            foreach (var todosProdutosDTO in TodosBrinquedosDTO)
             {
-                // Verifica se o brinquedo já existe no banco de dados com base no ID
-                var brinquedoExistente = await _contexto.TodoBrinquedos.FindAsync(brinquedoDTO.id);
+                var produtoExistente = await db.SingleOrDefaultAsync<TodosBrinquedos>("SELECT * FROM brinquedos WHERE id = @0", todosProdutosDTO.Id);
 
-                if (brinquedoExistente != null)
+                if (produtoExistente == null)
                 {
-                    // O brinquedo já existe, então atualiza os valores
-                    brinquedoExistente.brinquedo = brinquedoDTO.brinquedo;
-                    brinquedoExistente.preco = brinquedoDTO.preco;
-                    brinquedoExistente.quantidade = brinquedoDTO.quantidade;
-                    brinquedoExistente.vendastotais = brinquedoDTO.vendastotais;
+                    // O produto não existe no banco de dados, então vamos adicioná-lo
+                    var novoProduto = new TodosBrinquedos
+                    {
+                        brinquedo = todosProdutosDTO.brinquedo,
+                        quantidade = todosProdutosDTO.quantidade,
+                        preco = todosProdutosDTO.preco,
+                        vendastotais = todosProdutosDTO.vendastotais
+                    };
+
+                    await db.InsertAsync("brinquedos", "id", true, novoProduto);
                 }
                 else
                 {
-                    // O brinquedo não existe, então cria um novo
-                    var novoBrinquedo = new TodosBrinquedos
-                    {
-                        brinquedo = brinquedoDTO.brinquedo,
-                        preco = brinquedoDTO.preco,
-                        quantidade = brinquedoDTO.quantidade,
-                        vendastotais = brinquedoDTO.vendastotais
-                    };
+                    // O produto já existe no banco de dados, então vamos atualizá-lo
+                    produtoExistente.brinquedo = todosProdutosDTO.brinquedo;
+                    produtoExistente.quantidade = todosProdutosDTO.quantidade;
+                    produtoExistente.preco = todosProdutosDTO.preco;
+                    produtoExistente.vendastotais = todosProdutosDTO.vendastotais;
 
-                    _contexto.TodoBrinquedos.Add(novoBrinquedo);
+                    await db.UpdateAsync("brinquedos", "id", produtoExistente);
                 }
             }
-
-            // Salva as alterações no banco de dados
-            await _contexto.SaveChangesAsync();
-
-            //Ler produtos que estão na base de dados
-            var todosBrinquedos = await _contexto.TodoBrinquedos.ToListAsync();
-
-            var TodosBrinquedosJSON = new TodosBrinquedosJSON
-            {
-                Brinquedos = todosBrinquedos.Select(BrinquedosToDTO).ToList()
-            };
-
-            return Ok();
         }
-        catch (Exception ex)
-        {
-            return NotFound();
-        }
+
+        return Ok();
     }
 
     [HttpPost("AtualizarQuantidadeEVendas/{id}")]
-public async Task<ActionResult> AtualizarQuantidadeEVendas(long id)
-{
-    try
+    public async Task<ActionResult> AtualizarQuantidadeEVendas(long id)
     {
-        var brinquedo = await _contexto.TodoBrinquedos.FindAsync(id);
-
-        if (brinquedo == null)
+        try
         {
-            return NotFound($"Não foi encontrado nenhum Brinquedo com o Id: {id}. Insira outro Id.");
+            using (var db = new Database(conexaodb, "MySql.Data.MySqlClient"))
+            {
+                var brinquedo = await db.SingleOrDefaultAsync<TodosBrinquedos>("SELECT * FROM brinquedos WHERE id = @0", id);
+
+                if (brinquedo == null)
+                {
+                    return NotFound($"Não foi encontrado nenhum Brinquedo com o Id: {id}. Insira outro Id.");
+                }
+
+                brinquedo.quantidade -= 1;
+                brinquedo.vendastotais += 1;
+
+                await db.UpdateAsync("brinquedos", "id", brinquedo);
+
+                return NoContent();
+            }
         }
-
-        brinquedo.quantidade -= 1;
-        brinquedo.vendastotais += 1;
-
-        await _contexto.SaveChangesAsync();
-
-        return NoContent();
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, "Erro ao atualizar a quantidade e vendas totais do brinquedo");
+        }
     }
-    catch (Exception ex)
-    {
-        return StatusCode(StatusCodes.Status500InternalServerError, "Erro ao atualizar a quantidade e vendas totais do brinquedo");
-    }
-}
 
 
     private bool TodosBrinquedosExists(long id)
     {
-       return _contexto.TodoBrinquedos.Any(e => e.id == id);
+       return _contexto.TodoBrinquedos.Any(e => e.Id == id);
     }
 
     private static TodosBrinquedosDTO BrinquedosToDTO(TodosBrinquedos TodoBrinquedo) =>
        new TodosBrinquedosDTO
        {
-           id = TodoBrinquedo.id,
+           Id = TodoBrinquedo.Id,
            brinquedo = TodoBrinquedo.brinquedo,
            preco = TodoBrinquedo.preco,
            quantidade = TodoBrinquedo.quantidade,

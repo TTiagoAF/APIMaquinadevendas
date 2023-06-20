@@ -63,9 +63,21 @@
               "target": "Package",
               "version": "[7.0.6, )"
             },
+            "MySql.Data": {
+              "target": "Package",
+              "version": "[8.0.33, )"
+            },
+            "MySqlConnector": {
+              "target": "Package",
+              "version": "[2.2.6, )"
+            },
             "Newtonsoft.Json": {
               "target": "Package",
               "version": "[13.0.3, )"
+            },
+            "PetaPoco.Compiled": {
+              "target": "Package",
+              "version": "[6.0.566, )"
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
