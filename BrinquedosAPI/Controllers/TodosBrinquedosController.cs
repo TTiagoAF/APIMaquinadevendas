@@ -46,22 +46,33 @@ public class TodosBrinquedosController : ControllerBase
                 }).ToList();
 
                 return Ok(responseItems);
-            }
-        
+            }        
     }
 
     // GET {id}: Vai buscar os itens da API por ID
-    [HttpGet("ListaDeBrinquedosPor{id}")]
+    [HttpGet("ListaDeBrinquedosPor/{id}")]
     public async Task<ActionResult<TodosBrinquedosDTO>> GetTodoBrinquedos(long id)
     {
-        var TodosBrinquedos = await _contexto.TodoBrinquedos.FindAsync(id);
-
-        if (TodosBrinquedos == null)
+        using (var db = new Database(conexaodb, "MySql.Data.MySqlClient")) // Substitua "NomeDaSuaConnectionString" pela sua string de conexão do MySQL
         {
-            return NotFound($"Não foi encontrado nenhum Brinquedo com o Id: {id}. Insira outro Id.");
-        }
+            var brinquedo = await db.FirstOrDefaultAsync<TodosBrinquedos>("SELECT * FROM brinquedos WHERE Id = @0", id);
 
-        return BrinquedosToDTO(TodosBrinquedos);
+            if (brinquedo == null)
+            {
+                return NotFound($"Não foi encontrado nenhum Brinquedo com o Id: {id}. Insira outro Id.");
+            }
+
+            var brinquedoDTO = new TodosBrinquedosDTO
+            {
+                Id = brinquedo.Id,
+                brinquedo = brinquedo.brinquedo,
+                quantidade = brinquedo.quantidade,
+                preco = brinquedo.preco,
+                vendastotais = brinquedo.vendastotais
+            };
+
+            return Ok(brinquedoDTO);
+        }
     }
     // Método post que faz o eliminar
     [HttpPost("DeleteBrinquedo")]

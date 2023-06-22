@@ -11,5 +11,6 @@ namespace BrinquedosAPI.Models
         }
 
         public DbSet<TodosBrinquedos> TodoBrinquedos { get; set; } = null!;
+        public DbSet<TodasVendas> TodasVendas { get; set; } = null!;
     }
 }
