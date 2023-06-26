@@ -544,3 +544,4 @@ C:\Users\tiago\OneDrive\Documentos\GitHub\APIMaquinadevendas\BrinquedosAPI\bin\D
 C:\Users\tiago\OneDrive\Documentos\GitHub\APIMaquinadevendas\BrinquedosAPI\bin\Debug\net7.0\zh-CN\Humanizer.resources.dll
 C:\Users\tiago\OneDrive\Documentos\GitHub\APIMaquinadevendas\BrinquedosAPI\bin\Debug\net7.0\zh-Hans\Humanizer.resources.dll
 C:\Users\tiago\OneDrive\Documentos\GitHub\APIMaquinadevendas\BrinquedosAPI\bin\Debug\net7.0\zh-Hant\Humanizer.resources.dll
+C:\Users\tiago\OneDrive\Documentos\GitHub\APIMaquinadevendas\BrinquedosAPI\bin\Debug\net7.0\AutoMapper.dll

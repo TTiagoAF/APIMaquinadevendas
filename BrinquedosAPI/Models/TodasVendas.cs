@@ -7,5 +7,6 @@
         public long Id_produto { get; set; }
         public int Quantidade_Vendida { get; set; }
         public double Preco { get; set; }
+        public double Troco { get; set; }
     }
 }

@@ -12,6 +12,8 @@ using PetaPoco;
 using System.Data;
 using MySql.Data.MySqlClient;
 using Humanizer;
+using AutoMapper;
+
 
 namespace BrinquedosAPI.Controllers;
 
@@ -26,35 +28,42 @@ public class TodasVendasController : ControllerBase
         _contexto = contexto;
     }
 
+
     string conexaodb = "Server=localhost;Port=3306;Database=maquinadevendas;Uid=root;";
 
-    // GET: api/TodosBrinquedos
+    // GET: Vai buscar á base de dados todas as vendas feitas na máquina de vendas
     [HttpGet("ListaDeVendas")]
     public async Task<ActionResult<IEnumerable<TodasVendasDTO>>> GetTodasVendas()
     {
-        
-            using (var db = new Database(conexaodb, "MySql.Data.MySqlClient")) // Substitua "NomeDaSuaConnectionString" pela sua string de conexão do MySQL
-            {
-                var todosVendas = await db.FetchAsync<TodasVendas>("SELECT * FROM vendas");
+        var config = new MapperConfiguration(cfg =>
+        {
+            cfg.CreateMap<TodasVendas, TodasVendasDTO>();
+        });
 
-                var responseItems = todosVendas.Select(p => new TodasVendasDTO
-                {
-                    Id_venda = p.Id_venda,
-                    Data = p.Data,
-                    Id_produto = p.Id_produto,
-                    Quantidade_Vendida = p.Quantidade_Vendida,
-                    Preco = p.Preco,
-                }).ToList();
+        AutoMapper.IMapper mapper = config.CreateMapper();
 
-                return Ok(responseItems);
-            }        
+        using (var db = new Database(conexaodb, "MySql.Data.MySqlClient"))
+        {
+            var todosVendas = await db.FetchAsync<TodasVendas>("SELECT * FROM vendas");
+            var responseItems = mapper.Map<List<TodasVendasDTO>>(todosVendas);
+
+            return Ok(responseItems);
+        }        
     }
 
-    // GET {id}: Vai buscar os itens da API por ID
+    // GET {id}: Vai buscar á base de dados a venda do id inserido
     [HttpGet("ListaDeVendasPor/{id}")]
     public async Task<ActionResult<TodasVendasDTO>> GetTodasVendas(long id)
     {
-        using (var db = new Database(conexaodb, "MySql.Data.MySqlClient")) // Substitua "NomeDaSuaConnectionString" pela sua string de conexão do MySQL
+
+        var config = new MapperConfiguration(cfg =>
+        {
+            cfg.CreateMap<TodasVendas, TodasVendasDTO>();
+        });
+
+        AutoMapper.IMapper mapper = config.CreateMapper();
+
+        using (var db = new Database(conexaodb, "MySql.Data.MySqlClient"))
         {
             var vendas = await db.FirstOrDefaultAsync<TodasVendas>("SELECT * FROM vendas WHERE Id_produto = @0", id);
 
@@ -62,20 +71,11 @@ public class TodasVendasController : ControllerBase
             {
                 return NotFound($"Não foi encontrado nenhum Brinquedo com o Id: {id}. Insira outro Id.");
             }
-
-            var vendasDTO = new TodasVendasDTO
-            {
-                Id_venda = vendas.Id_venda,
-                Data = vendas.Data,
-                Id_produto = vendas.Id_produto,
-                Quantidade_Vendida = vendas.Quantidade_Vendida,
-                Preco = vendas.Preco,
-            };
-
+            var vendasDTO = mapper.Map<TodasVendasDTO>(vendas);
             return Ok(vendasDTO);
         }
     }
-    // Método post que faz o eliminar
+    // Método post que elemina da base de dados as vendas por id inserido
     [HttpPost("DeleteVendas")]
     public async Task<ActionResult> DeleteTodasVendas([FromBody] List<long> ids)
     {
@@ -97,7 +97,6 @@ public class TodasVendasController : ControllerBase
                     }
                 }
             }
-
             return NoContent();
         }
         catch (Exception ex)
@@ -105,27 +104,26 @@ public class TodasVendasController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, "Erro ao excluir brinquedo(s)");
         }
     }
-    // Método post que faz o inserir
+    // Método post que insere na base de dados as vendas
     [HttpPost("AddVendas")]
     public async Task<ActionResult> AddVendas([FromBody] List<TodasVendasDTO> TodasVendasDTO)
     {
+
+        var config = new MapperConfiguration(cfg =>
+        {
+            cfg.CreateMap<TodasVendasDTO, TodasVendas>();
+        });
+
+        AutoMapper.IMapper mapper = config.CreateMapper();
+
         using (var db = new Database(conexaodb, "MySql.Data.MySqlClient"))
         {
             foreach (var todasVendasDTO in TodasVendasDTO)
             {
-                    // O produto não existe no banco de dados, então vamos adicioná-lo
-                    var novaVenda = new TodasVendas
-                    {
-                        Data = todasVendasDTO.Data,
-                        Id_produto = todasVendasDTO.Id_produto,
-                        Quantidade_Vendida = todasVendasDTO.Quantidade_Vendida,
-                        Preco = todasVendasDTO.Preco
-                    };
-
-                    await db.InsertAsync("vendas", "Id_venda", true, novaVenda);
+                var novaVenda = mapper.Map<TodasVendas>(todasVendasDTO);
+                await db.InsertAsync("vendas", "Id_venda", true, novaVenda);
             }
         }
-
         return Ok();
     }
     private bool TodasVendasExist(long id)
@@ -141,5 +139,6 @@ public class TodasVendasController : ControllerBase
            Id_produto = TodaVenda.Id_produto,
            Quantidade_Vendida = TodaVenda.Quantidade_Vendida,
            Preco = TodaVenda.Preco,
+           Troco = TodaVenda.Troco,
        };
 }
