@@ -188,16 +188,4 @@ public class TodasVendasController : ControllerBase
     {
         return _contexto.TodasVendas.Any(e => e.Id_venda == id);
     }
-
-    // Método auxiliar para mapear um objeto TodasVendas para TodasVendasDTO
-    private static TodasVendasDTO VendasToDTO(TodasVendas TodaVenda) =>
-        new TodasVendasDTO
-        {
-            Id_venda = TodaVenda.Id_venda,
-            Data = TodaVenda.Data,
-            Id_produto = TodaVenda.Id_produto,
-            Quantidade_Vendida = TodaVenda.Quantidade_Vendida,
-            Preco = TodaVenda.Preco,
-            Troco = TodaVenda.Troco,
-        };
 }
